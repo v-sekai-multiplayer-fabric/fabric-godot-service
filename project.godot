@@ -22,9 +22,13 @@ config/features=PackedStringArray("4.7", "Double Precision", "Forward Plus")
 [autoload]
 
 ; The MCP bridge inside the running game, not only inside the editor. `mcp_bridge.gd` exposes
-; the editor's SceneTree; this exposes the game's, on http://127.0.0.1:8788/mcp. That is the
-; only way to ask a *running* client what it actually received — a screenshot and a node's real
-; transform are the difference between "the packet decoded" and "the cube is where the service
+; the editor's SceneTree on 8788; this exposes the game's on 8789, and the two are different
+; numbers for a reason — the ordinary way to run this is to press play in an editor that is
+; already open, and when they shared a port the game lost the bind and an MCP client went on
+; questioning the editor while believing it had reached the game.
+;
+; It is the only way to ask a *running* client what it actually received. A node's real
+; transform is the difference between "the packet decoded" and "the cube is where the service
 ; put it", and nothing above the socket can tell you the second.
 MCPRuntime="*res://addons/vsekai_godot_mcp/mcp_runtime.gd"
 

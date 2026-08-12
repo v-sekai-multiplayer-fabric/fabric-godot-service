@@ -1,7 +1,13 @@
 # fabric-godot-service
 
-The XR client for one zone. It connects to `fabric-physics-service`, draws what that service
-says is nearby, and sends back this player's head and two hands.
+The desktop test client for one zone. It connects to `fabric-physics-service`, draws what that
+service says is nearby, and sends back this player's head and two hands.
+
+No headset. `XRGridFlatscreenController` drives the camera and both hands from mouse, WASD and a
+gamepad — the engine's own class, and the same one the XR build falls back to when no OpenXR
+runtime initialises, so it is not a stand-in. What it moves are three Node3Ds, which is what a
+head and two hands are on the wire, so nothing above it and nothing across the network can tell
+the difference.
 
 **It is only a client.** Nothing here simulates, owns, or decides anything. There is no
 `RigidBody` in the project and there is not going to be one: the service is authoritative over
@@ -15,8 +21,10 @@ What this project produces is three poses a tick. Everything else it does is dra
 godot --path . -- --zone=127.0.0.1:9500
 ```
 
-With a headset attached, `XRGridXROrigin` initialises OpenXR and puts the viewport in XR. With
-none it runs flat on the desk, which is how it is debugged.
+Mouse looks, WASD walks, the hands follow the camera. OpenXR is off in `project.godot`: with it
+on, an installed runtime claims the session and the flatscreen controller stands down, so a
+headset plugged in for something else would silently take over the test client. `xr/actions.tres`
+stays in the tree, so putting the headset back is a flag rather than a rewrite.
 
 The engine is `fabric-godot-core` at branch `gyre`, built with `precision=double`. That is not
 optional: positions on the wire are int64 absolute micrometres so a zone can be kilometres
@@ -63,6 +71,16 @@ It is clamped rather than extrapolated deliberately. Running ahead of the newest
 is prediction, and prediction belongs to the service that owns authority — see
 `fabric-physics-interactor`, where the rollback loop is going. A renderer that guessed would be
 a second opinion about where a cube is, which is the thing the whole design refuses.
+
+## Driving it from outside
+
+`addons/vsekai_godot_mcp` is vendored and both halves are on: the editor plugin on 8788, and
+`MCPRuntime` autoloaded into the running game on 8789. Two ports, because pressing play in an
+open editor is the ordinary case and one port meant the game lost the bind while a client went
+on questioning the editor. `--mcp-port=` or `GODOT_MCP_PORT` moves the runtime one.
+
+Ask the running game, not the editor, when the question is what arrived. A node's real transform
+is the difference between "the packet decoded" and "the cube is where the service put it".
 
 ## Two things that are not wired yet
 

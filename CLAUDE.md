@@ -1,8 +1,14 @@
 # fabric-godot-service
 
-The XR client for one zone of the multiplayer fabric. It connects to `fabric-physics-service`
-over WebTransport, draws the entities that service sends, and sends back this player's head and
-two hands.
+The desktop test client for one zone of the multiplayer fabric. It connects to
+`fabric-physics-service` over WebTransport, draws the entities that service sends, and sends
+back this player's head and two hands.
+
+Desktop, not a headset. `XRGridFlatscreenController` drives the camera and both hands from
+mouse, WASD and a gamepad, and it is the engine's own class rather than a stand-in — it is what
+the XR build already falls back to when no OpenXR runtime initialises. What it moves are three
+Node3Ds, which is what a head and two hands are on the wire, so nothing above it and nothing
+across the network can tell the difference.
 
 `README.md` gives the design. Record decisions in the `multiplayer-fabric-manuals` repository.
 `CITATION.cff` says what this repository is built on; add a reference there when you add a
@@ -41,6 +47,38 @@ and emitted from there; `decode` already returns metres.
 A slice is back-to-back 100-byte records with no framing and the count is `len / 100`. A
 datagram whose length is not a multiple of 100 is malformed, not short. Drop it and say so.
 
+## The rig's node names are a contract
+
+`XRGridFlatscreenController` looks up `XRCamera3D`, `hand_left` and `hand_right` under its
+parent, by name. Renaming any of them does not error — it drives nothing, and the client sends
+three poses that never move. Do NOT rename them.
+
+`XRCamera3D` is a plain `Camera3D`. The controller casts to `Camera3D` and never asks for an XR
+one, so the desktop build needs no XR node in the tree.
+
+## OpenXR stays off
+
+`openxr/enabled=false`. With it on, an installed runtime claims the session and the flatscreen
+controller stands down — it checks whether OpenXR initialised and deactivates itself if it did,
+so a headset plugged in for something else would silently take over the test client.
+
+Keep `xr/actions.tres`. It is what the headset build needs, it costs nothing while OpenXR is
+off, and deleting it makes putting the headset back a rewrite rather than a flag.
+
+## The MCP bridge
+
+`addons/vsekai_godot_mcp` is vendored, and both halves are on: the editor plugin on **8788**,
+and `MCPRuntime` as an autoload inside the running game on **8789**.
+
+Two ports, deliberately. The ordinary way to run this is to press play in an editor that is
+already open, and when they shared 8788 the game lost the bind while an MCP client went on
+questioning the editor and believing it had reached the game — wrong answers, not an error.
+`--mcp-port=` or `GODOT_MCP_PORT` moves the runtime one.
+
+Ask the *running* game, not the editor, when the question is what arrived. A node's real
+transform is the difference between "the packet decoded" and "the cube is where the service put
+it", and nothing above the socket can tell you the second.
+
 ## Build
 
 The engine is `fabric-godot-core` at branch `gyre`, built `precision=double`. A single-precision
@@ -50,6 +88,3 @@ kilometres across.
 ```sh
 godot --path . -- --zone=127.0.0.1:9500
 ```
-
-Runs in XR when a headset is present and flat when it is not. Both paths must keep working —
-the flat one is how this gets debugged.
