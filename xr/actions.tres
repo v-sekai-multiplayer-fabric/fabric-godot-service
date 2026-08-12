@@ -1,0 +1,37 @@
+[gd_resource type="OpenXRActionMap" format=3 uid="uid://dnj5kps4v6rfc"]
+
+[sub_resource type="OpenXRAction" id="Action_hand_pose"]
+resource_name = "hand_pose"
+localized_name = "Hand pose"
+action_type = 3
+toplevel_paths = PackedStringArray("/user/hand/left", "/user/hand/right")
+
+[sub_resource type="OpenXRAction" id="Action_grip"]
+resource_name = "grip"
+localized_name = "Grip"
+toplevel_paths = PackedStringArray("/user/hand/left", "/user/hand/right")
+
+[sub_resource type="OpenXRActionSet" id="ActionSet_zone"]
+resource_name = "zone"
+localized_name = "Zone"
+actions = [SubResource("Action_hand_pose"), SubResource("Action_grip")]
+
+[sub_resource type="OpenXRIPBinding" id="Bind_simple_pose"]
+action = SubResource("Action_hand_pose")
+binding_path = "/user/hand/left/input/grip/pose"
+
+[sub_resource type="OpenXRIPBinding" id="Bind_simple_pose_r"]
+action = SubResource("Action_hand_pose")
+binding_path = "/user/hand/right/input/grip/pose"
+
+[sub_resource type="OpenXRInteractionProfile" id="Profile_simple"]
+interaction_profile_path = "/interaction_profiles/khr/simple_controller"
+bindings = [SubResource("Bind_simple_pose"), SubResource("Bind_simple_pose_r")]
+
+[sub_resource type="OpenXRInteractionProfile" id="Profile_touch"]
+interaction_profile_path = "/interaction_profiles/oculus/touch_controller"
+bindings = [SubResource("Bind_simple_pose"), SubResource("Bind_simple_pose_r")]
+
+[resource]
+action_sets = [SubResource("ActionSet_zone")]
+interaction_profiles = [SubResource("Profile_simple"), SubResource("Profile_touch")]

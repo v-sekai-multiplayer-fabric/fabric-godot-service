@@ -1,0 +1,67 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
+[application]
+
+config/name="fabric-godot-service"
+config/description="The XR client for one zone of the multiplayer fabric. Head, two hands, and whatever the physics service says is nearby."
+run/main_scene="res://scenes/zone.tscn"
+config/features=PackedStringArray("4.7", "Double Precision", "Forward Plus")
+
+[autoload]
+
+; The MCP bridge inside the running game, not only inside the editor. `mcp_bridge.gd` exposes
+; the editor's SceneTree on 8788; this exposes the game's on 8789, and the two are different
+; numbers for a reason — the ordinary way to run this is to press play in an editor that is
+; already open, and when they shared a port the game lost the bind and an MCP client went on
+; questioning the editor while believing it had reached the game.
+;
+; It is the only way to ask a *running* client what it actually received. A node's real
+; transform is the difference between "the packet decoded" and "the cube is where the service
+; put it", and nothing above the socket can tell you the second.
+MCPRuntime="*res://addons/vsekai_godot_mcp/mcp_runtime.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/vsync/vsync_mode=0
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/vsekai_godot_mcp/plugin.cfg")
+
+[input]
+
+grab={
+"deadzone": 0.5,
+"events": []
+}
+
+[rendering]
+
+anti_aliasing/quality/msaa_3d=2
+
+[xr]
+
+; OpenXR off: this is the desktop test client. With it on, an installed runtime would claim the
+; session and `XRGridFlatscreenController` would stand down — it checks whether OpenXR
+; initialised and deactivates itself if it did. Turning it off is what makes the desk path the
+; one that runs, rather than the one that runs only when nothing else is plugged in.
+;
+; `xr/actions.tres` stays in the tree. It is the action map the headset build needs, it costs
+; nothing while OpenXR is off, and deleting it would make putting the headset back a rewrite
+; rather than a flag.
+openxr/enabled=false
+shaders/enabled=false

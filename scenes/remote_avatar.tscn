@@ -1,0 +1,33 @@
+; Somebody else, as three tracked things.
+;
+; A head and two hands is the whole avatar, which is what the article synchronises and what the
+; service publishes: `class_owner` says whose, `sub_index` says which. There is no body between
+; them because nothing on the wire describes one, and inventing a torso here would be this
+; client guessing at a pose the service never sent.
+[gd_scene load_steps=4 format=3 uid="uid://bavatar0000001"]
+
+[sub_resource type="SphereMesh" id="Mesh_head"]
+radius = 0.12
+height = 0.24
+
+[sub_resource type="SphereMesh" id="Mesh_hand"]
+radius = 0.06
+height = 0.12
+
+[sub_resource type="StandardMaterial3D" id="Mat_avatar"]
+albedo_color = Color(0.35, 0.7, 0.95, 1)
+roughness = 0.5
+
+[node name="RemoteAvatar" type="Node3D"]
+
+[node name="Head" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_head")
+surface_material_override/0 = SubResource("Mat_avatar")
+
+[node name="LeftHand" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_hand")
+surface_material_override/0 = SubResource("Mat_avatar")
+
+[node name="RightHand" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_hand")
+surface_material_override/0 = SubResource("Mat_avatar")

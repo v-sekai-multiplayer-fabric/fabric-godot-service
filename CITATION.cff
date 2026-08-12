@@ -1,0 +1,97 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "fabric-godot-service: the XR client for one zone of the multiplayer fabric"
+abstract: >
+  A Godot XR client for one zone of the V-Sekai multiplayer fabric. It opens a
+  WebTransport session to fabric-physics-service, decodes back-to-back 100-byte
+  XRGridEntityPacket slices into props and remote avatars, interpolates between
+  the last two snapshots at headset frame rate, and sends this player's head and
+  two hands back at 20 Hz. It simulates nothing: the service is authoritative
+  over every prop, and the client's only output is its own tracked pose.
+authors:
+  - family-names: Lee
+    given-names: "K. S. Ernest (iFire)"
+    email: ernest.lee@chibifire.com
+    orcid: "https://orcid.org/0000-0003-4570-1436"
+version: 0.1.0-dev.1
+date-released: "2026-08-12"
+license: Apache-2.0
+repository-code: "https://github.com/v-sekai-multiplayer-fabric/fabric-godot-service"
+keywords:
+  - godot
+  - openxr
+  - webtransport
+  - multiplayer
+  - networked-physics
+  - virtual-reality
+
+# What this client is built on. It is almost entirely other people's decisions: an engine fork,
+# a transport module inside it, a wire format proved elsewhere, and a service that owns the
+# state. Saying so in one place beats a README that mentions each once.
+references:
+
+  - type: software
+    title: "fabric-godot-core: the Godot engine fork, branch gyre"
+    authors:
+      - family-names: Lee
+        given-names: "K. S. Ernest (iFire)"
+        orcid: "https://orcid.org/0000-0003-4570-1436"
+    year: 2026
+    url: "https://github.com/v-sekai-multiplayer-fabric/fabric-godot-core"
+    notes: >
+      The engine this runs on, built precision=double. Supplies modules/http3's
+      WebTransportPeer over picoquic, and modules/xr_grid's XRGridEntityPacket
+      and XRGridXROrigin. Must be the gyre branch: master is upstream Godot.
+
+  - type: software
+    title: "fabric-physics-service: server-authoritative networked physics for one ward"
+    authors:
+      - family-names: Lee
+        given-names: "K. S. Ernest (iFire)"
+        orcid: "https://orcid.org/0000-0003-4570-1436"
+    year: 2026
+    url: "https://github.com/v-sekai-multiplayer-fabric/fabric-physics-service"
+    notes: "The other end. It owns the state; this draws it."
+
+  - type: software
+    title: "lean-entity-packet: the 100-byte integral entity wire packet, proved"
+    authors:
+      - family-names: Lee
+        given-names: "K. S. Ernest (iFire)"
+        orcid: "https://orcid.org/0000-0003-4570-1436"
+    year: 2026
+    url: "https://github.com/v-sekai-multiplayer-fabric/lean-entity-packet"
+    notes: "The layout, and the reason no file here carries a field offset."
+
+  - type: software
+    title: "fabric-fanout-edge: interest-filtered fan-out, the leaf of the relay tree"
+    authors:
+      - family-names: Lee
+        given-names: "K. S. Ernest (iFire)"
+        orcid: "https://orcid.org/0000-0003-4570-1436"
+    year: 2026
+    url: "https://github.com/v-sekai-multiplayer-fabric/fabric-fanout-edge"
+    notes: >
+      What writes the slices this decodes. Its README is where the batching
+      contract lives: back-to-back records, count recovered as len / 100.
+
+  - type: article
+    title: "Networked Physics in Virtual Reality"
+    authors:
+      - family-names: Fiedler
+        given-names: Glenn
+    year: 2018
+    url: "https://gafferongames.com/post/networked_physics_in_virtual_reality/"
+    notes: >
+      Where the three-object avatar comes from: a head and two hands driven by
+      the tracked headset and touch controllers.
+
+  - type: software
+    title: "picoquic: a minimal QUIC implementation"
+    authors:
+      - family-names: Huitema
+        given-names: Christian
+    year: 2026
+    license: MIT
+    url: "https://github.com/private-octopus/picoquic"
+    notes: "Vendored inside fabric-godot-core's modules/http3. The transport under WebTransportPeer."
