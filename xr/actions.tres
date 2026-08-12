@@ -1,12 +1,4 @@
-; The OpenXR action map.
-;
-; Only what a head and two hands need: where the controllers are, and a grip. The article's
-; interaction is grabbing cubes, and a grab is one boolean plus a pose — everything else a
-; runtime could offer is an action this client would send nowhere.
-;
-; `aim` is absent on purpose. This client points at nothing: selection is the service's, through
-; the interest filter, and a ray drawn here would imply a decision it does not make.
-[gd_resource type="OpenXRActionMap" load_steps=8 format=3 uid="uid://bxractions0001"]
+[gd_resource type="OpenXRActionMap" format=3 uid="uid://dnj5kps4v6rfc"]
 
 [sub_resource type="OpenXRAction" id="Action_hand_pose"]
 resource_name = "hand_pose"
@@ -17,7 +9,6 @@ toplevel_paths = PackedStringArray("/user/hand/left", "/user/hand/right")
 [sub_resource type="OpenXRAction" id="Action_grip"]
 resource_name = "grip"
 localized_name = "Grip"
-action_type = 1
 toplevel_paths = PackedStringArray("/user/hand/left", "/user/hand/right")
 
 [sub_resource type="OpenXRActionSet" id="ActionSet_zone"]
@@ -25,10 +16,6 @@ resource_name = "zone"
 localized_name = "Zone"
 actions = [SubResource("Action_hand_pose"), SubResource("Action_grip")]
 
-; Two profiles. The simple controller is what every conformant runtime must support, so it is
-; the one that guarantees this runs at all; the Touch profile is the hardware the article was
-; built for. A profile list that named only the hardware in the room would ship a client that
-; works on one headset.
 [sub_resource type="OpenXRIPBinding" id="Bind_simple_pose"]
 action = SubResource("Action_hand_pose")
 binding_path = "/user/hand/left/input/grip/pose"

@@ -1,26 +1,7 @@
-; The zone, as a desktop client sees it.
-;
-; No headset. `XRGridFlatscreenController` drives a camera and two hands from mouse, WASD and a
-; gamepad, and it is the engine's own — the same class the XR build falls back to when no
-; runtime is initialised, so this is not a test double. What it moves are three Node3Ds, which
-; is exactly what a head and two hands are on the wire, so the client above them cannot tell
-; the difference and neither can the service.
-;
-; The node names are the controller's contract, not a preference: it looks up `XRCamera3D`,
-; `hand_left` and `hand_right` under its parent by name, and silently drives nothing if they are
-; renamed. `XRCamera3D` is a plain Camera3D here — the controller casts to Camera3D and never
-; asks for an XR one, so the desktop build needs no XR node in the tree at all.
-[gd_scene load_steps=6 format=3 uid="uid://bzone00000001"]
+[gd_scene format=3 uid="uid://b0one00000001"]
 
-[ext_resource type="Script" path="res://scripts/zone_client.gd" id="1_client"]
-[ext_resource type="Script" path="res://scripts/local_rig.gd" id="2_rig"]
-
-[sub_resource type="PlaneMesh" id="Mesh_floor"]
-size = Vector2(200, 200)
-
-[sub_resource type="StandardMaterial3D" id="Mat_floor"]
-albedo_color = Color(0.14, 0.15, 0.17, 1)
-roughness = 0.95
+[ext_resource type="Script" uid="uid://4xa0did0fj2w" path="res://scripts/zone_client.gd" id="1_client"]
+[ext_resource type="Script" uid="uid://ddxxn7nlbm3oc" path="res://scripts/local_rig.gd" id="2_rig"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -29,47 +10,47 @@ ambient_light_source = 2
 ambient_light_color = Color(0.5, 0.55, 0.65, 1)
 ambient_light_energy = 0.6
 
-[node name="Zone" type="Node3D"]
+[sub_resource type="PlaneMesh" id="Mesh_floor"]
+size = Vector2(200, 200)
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[sub_resource type="StandardMaterial3D" id="Mat_floor"]
+albedo_color = Color(0.14, 0.15, 0.17, 1)
+roughness = 0.95
+
+[node name="Zone" type="Node3D" unique_id=189875016]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1490438421]
 environment = SubResource("Env")
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=511989884]
 transform = Transform3D(1, 0, 0, 0, 0.7, 0.7, 0, -0.7, 0.7, 0, 12, 0)
 shadow_enabled = true
 
-; The floor is the client's own, not an entity. The service simulates a plane it never sends,
-; because a static collider costs a packet every tick and moves for nobody.
-[node name="Floor" type="MeshInstance3D" parent="."]
+[node name="Floor" type="MeshInstance3D" parent="." unique_id=1467627951]
 mesh = SubResource("Mesh_floor")
 surface_material_override/0 = SubResource("Mat_floor")
 
-; Everything the service says exists is parented here, and nothing else is.
-[node name="World" type="Node3D" parent="."]
+[node name="World" type="Node3D" parent="." unique_id=1575724486]
 
-[node name="ZoneClient" type="Node" parent="."]
+[node name="ZoneClient" type="Node" parent="." unique_id=336282539]
 script = ExtResource("1_client")
 world_path = NodePath("../World")
 
-; Stands in for the XR origin: a body at eye height with two hands in front of it. The names
-; below are what XRGridFlatscreenController looks for.
-[node name="Rig" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+[node name="Rig" type="Node3D" parent="." unique_id=1301030295]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2292148741631985, 0, 17.698899354876687)
 
-[node name="XRCamera3D" type="Camera3D" parent="Rig"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
-near = 0.05
-far = 4000.0
+[node name="XRCamera3D" type="Camera3D" parent="Rig" unique_id=1525734082]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
 
-[node name="hand_left" type="Node3D" parent="Rig"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 1.1, -0.4)
+[node name="hand_left" type="Node3D" parent="Rig" unique_id=1835696383]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2999999999999998, 1.4, -0.5)
 
-[node name="hand_right" type="Node3D" parent="Rig"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 1.1, -0.4)
+[node name="hand_right" type="Node3D" parent="Rig" unique_id=1700305636]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2999999999999998, 1.4, -0.5)
 
-[node name="Flatscreen" type="XRGridFlatscreenController" parent="Rig"]
+[node name="Flatscreen" type="XRGridFlatscreenController" parent="Rig" unique_id=1894381167]
 
-[node name="LocalRig" type="Node3D" parent="."]
+[node name="LocalRig" type="Node3D" parent="." unique_id=117950506]
 script = ExtResource("2_rig")
 zone_client_path = NodePath("../ZoneClient")
 head_path = NodePath("../Rig/XRCamera3D")
