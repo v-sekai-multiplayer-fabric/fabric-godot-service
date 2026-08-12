@@ -1,0 +1,63 @@
+; The zone, as a client sees it.
+;
+; `XRGridXROrigin` brings up OpenXR and puts the viewport in XR when a headset is there; without
+; one the same scene runs flat, which is how it gets debugged on a desk. `ZoneClient` owns the
+; WebTransport session and everything drawn under `World` came off it. `LocalRig` sends this
+; player's head and hands back, and that is the only thing this project ever produces.
+[gd_scene load_steps=6 format=3 uid="uid://bzone00000001"]
+
+[ext_resource type="Script" path="res://scripts/zone_client.gd" id="1_client"]
+[ext_resource type="Script" path="res://scripts/local_rig.gd" id="2_rig"]
+
+[sub_resource type="PlaneMesh" id="Mesh_floor"]
+size = Vector2(200, 200)
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor"]
+albedo_color = Color(0.14, 0.15, 0.17, 1)
+roughness = 0.95
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 1
+background_color = Color(0.05, 0.06, 0.08, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.55, 0.65, 1)
+ambient_light_energy = 0.6
+
+[node name="Zone" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.7, 0.7, 0, -0.7, 0.7, 0, 12, 0)
+shadow_enabled = true
+
+; The floor is the client's own, not an entity. The service simulates a plane it never sends,
+; because a static collider costs a packet every tick and moves for nobody.
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_floor")
+surface_material_override/0 = SubResource("Mat_floor")
+
+; Everything the service says exists is parented here, and nothing else is.
+[node name="World" type="Node3D" parent="."]
+
+[node name="ZoneClient" type="Node" parent="."]
+script = ExtResource("1_client")
+world_path = NodePath("../World")
+
+[node name="XROrigin" type="XRGridXROrigin" parent="."]
+
+[node name="Camera" type="XRCamera3D" parent="XROrigin"]
+
+[node name="LeftHand" type="XRController3D" parent="XROrigin"]
+tracker = &"left_hand"
+
+[node name="RightHand" type="XRController3D" parent="XROrigin"]
+tracker = &"right_hand"
+
+[node name="LocalRig" type="Node3D" parent="."]
+script = ExtResource("2_rig")
+zone_client_path = NodePath("../ZoneClient")
+head_path = NodePath("../XROrigin/Camera")
+left_hand_path = NodePath("../XROrigin/LeftHand")
+right_hand_path = NodePath("../XROrigin/RightHand")

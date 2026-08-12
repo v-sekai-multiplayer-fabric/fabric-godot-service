@@ -1,0 +1,4 @@
+# Godot's import cache and editor state. The project is the .tscn files and the scripts.
+.godot/
+*.translation
+export_presets.cfg
