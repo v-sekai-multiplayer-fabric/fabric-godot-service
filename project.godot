@@ -1,43 +1,29 @@
-; The XR client for the fabric physics service.
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
 ;
-; Run it against the sim with:
-;   godot --path . -- --zone=127.0.0.1:9500
-;
-; The engine is `fabric-godot-core` at branch `gyre`, built with `precision=double`. The
-; large-world coordinate is the whole reason the wire carries int64 micrometres, so a stock
-; Godot build will decode packets and put things in visibly wrong places once a zone is large.
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
 config/name="fabric-godot-service"
 config/description="The XR client for one zone of the multiplayer fabric. Head, two hands, and whatever the physics service says is nearby."
 run/main_scene="res://scenes/zone.tscn"
-config/features=PackedStringArray("4.5", "Double Precision", "Forward Plus")
+config/features=PackedStringArray("4.7", "Double Precision", "Forward Plus")
 
 [display]
 
-; XR wants the window; the compositor owns the headset framebuffer either way.
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/vsync/vsync_mode=0
-
-[rendering]
-
-renderer/rendering_method="forward_plus"
-; The zone can be kilometres across in int64 micrometres, and the near plane is a hand's reach.
-; Reverse-Z is what keeps that depth range usable.
-anti_aliasing/quality/msaa_3d=2
-
-[xr]
-
-openxr/enabled=true
-; The physics service publishes at 20 Hz and the headset draws at 72 or 90. Those are different
-; clocks on purpose: interpolation between the last two snapshots is the client's job, and
-; matching them would only hide that.
-openxr/default_action_map="res://xr/actions.tres"
-shaders/enabled=true
 
 [input]
 
@@ -45,3 +31,14 @@ grab={
 "deadzone": 0.5,
 "events": []
 }
+
+[rendering]
+
+anti_aliasing/quality/msaa_3d=2
+
+[xr]
+
+openxr/enabled=true
+openxr/default_action_map="res://xr/actions.tres"
+openxr/foveation_level=2
+shaders/enabled=true

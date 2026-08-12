@@ -1,9 +1,15 @@
-; The zone, as a client sees it.
+; The zone, as a desktop client sees it.
 ;
-; `XRGridXROrigin` brings up OpenXR and puts the viewport in XR when a headset is there; without
-; one the same scene runs flat, which is how it gets debugged on a desk. `ZoneClient` owns the
-; WebTransport session and everything drawn under `World` came off it. `LocalRig` sends this
-; player's head and hands back, and that is the only thing this project ever produces.
+; No headset. `XRGridFlatscreenController` drives a camera and two hands from mouse, WASD and a
+; gamepad, and it is the engine's own — the same class the XR build falls back to when no
+; runtime is initialised, so this is not a test double. What it moves are three Node3Ds, which
+; is exactly what a head and two hands are on the wire, so the client above them cannot tell
+; the difference and neither can the service.
+;
+; The node names are the controller's contract, not a preference: it looks up `XRCamera3D`,
+; `hand_left` and `hand_right` under its parent by name, and silently drives nothing if they are
+; renamed. `XRCamera3D` is a plain Camera3D here — the controller casts to Camera3D and never
+; asks for an XR one, so the desktop build needs no XR node in the tree at all.
 [gd_scene load_steps=6 format=3 uid="uid://bzone00000001"]
 
 [ext_resource type="Script" path="res://scripts/zone_client.gd" id="1_client"]
@@ -45,19 +51,27 @@ surface_material_override/0 = SubResource("Mat_floor")
 script = ExtResource("1_client")
 world_path = NodePath("../World")
 
-[node name="XROrigin" type="XRGridXROrigin" parent="."]
+; Stands in for the XR origin: a body at eye height with two hands in front of it. The names
+; below are what XRGridFlatscreenController looks for.
+[node name="Rig" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 
-[node name="Camera" type="XRCamera3D" parent="XROrigin"]
+[node name="XRCamera3D" type="Camera3D" parent="Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+near = 0.05
+far = 4000.0
 
-[node name="LeftHand" type="XRController3D" parent="XROrigin"]
-tracker = &"left_hand"
+[node name="hand_left" type="Node3D" parent="Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 1.1, -0.4)
 
-[node name="RightHand" type="XRController3D" parent="XROrigin"]
-tracker = &"right_hand"
+[node name="hand_right" type="Node3D" parent="Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 1.1, -0.4)
+
+[node name="Flatscreen" type="XRGridFlatscreenController" parent="Rig"]
 
 [node name="LocalRig" type="Node3D" parent="."]
 script = ExtResource("2_rig")
 zone_client_path = NodePath("../ZoneClient")
-head_path = NodePath("../XROrigin/Camera")
-left_hand_path = NodePath("../XROrigin/LeftHand")
-right_hand_path = NodePath("../XROrigin/RightHand")
+head_path = NodePath("../Rig/XRCamera3D")
+left_hand_path = NodePath("../Rig/hand_left")
+right_hand_path = NodePath("../Rig/hand_right")
