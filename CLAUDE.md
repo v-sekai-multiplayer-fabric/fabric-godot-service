@@ -1,7 +1,7 @@
-# fabric-godot-service
+# transport-client
 
 The desktop test client for one zone of the multiplayer fabric. It connects to
-`fabric-physics-service` over WebTransport, draws the entities that service sends, and sends
+`interactor-ward` over WebTransport, draws the entities that service sends, and sends
 back this player's head and two hands.
 
 Desktop, not a headset. `XRGridFlatscreenController` drives the camera and both hands from
@@ -10,7 +10,7 @@ the XR build already falls back to when no OpenXR runtime initialises. What it m
 Node3Ds, which is what a head and two hands are on the wire, so nothing above it and nothing
 across the network can tell the difference.
 
-`README.md` gives the design. Record decisions in the `multiplayer-fabric-manuals` repository.
+`README.md` says what this is; `WIRE.md` gives the design. Record decisions in the `multiplayer-fabric-manuals` repository.
 `CITATION.cff` says what this repository is built on; add a reference there when you add a
 dependency here.
 
@@ -41,7 +41,7 @@ tick supersedes it in 50 ms. Reliable things open a stream.
 Decode with `XRGridEntityPacket.decode` and encode with `XRGridEntityPacket.encode`.
 
 No file here may contain a field offset, a packet size other than `XRGridEntityPacket.PACKET_SIZE`,
-or a unit conversion between micrometres and metres. The layout is proved in `lean-entity-packet`
+or a unit conversion between micrometres and metres. The layout is proved in `contract-entity-packet`
 and emitted from there; `decode` already returns metres.
 
 A slice is back-to-back 100-byte records with no framing and the count is `len / 100`. A
@@ -81,7 +81,7 @@ it", and nothing above the socket can tell you the second.
 
 ## Build
 
-The engine is `fabric-godot-core` at branch `gyre`, built `precision=double`. A single-precision
+The engine is `entities-godot` at branch `gyre`, built `precision=double`. A single-precision
 build MUST NOT be used: positions are int64 absolute micrometres over a zone that can be
 kilometres across.
 
